@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Gerador de Texto Automático</title>
+  <style>
+    body { font-family: Arial; max-width: 800px; margin: 20px auto; }
+    textarea, input { width: 100%; padding: 10px; margin: 5px 0; }
+    button { padding: 10px 20px; margin-top: 10px; cursor: pointer; }
+    .form-field { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+<h2>1. Cole o texto com marcações</h2>
+<textarea id="template" rows="10"
+ placeholder="Cole aqui um texto com {{variáveis}} para preencher"></textarea>
+
+<button onclick="gerarFormulario()">Gerar Formulário</button>
+
+<h2>2. Preencha os dados</h2>
+<div id="form"></div>
+
+<button onclick="gerarTexto()">Gerar Texto Final</button>
+
+<h2>3. Resultado</h2>
+<textarea id="resultado" rows="12"></textarea>
+
+<script>
+function gerarFormulario() {
+  const texto = document.getElementById("template").value;
+
+  // Encontra todas {{variaveis}}
+  const matches = texto.match(/{{(.*?)}}/g);
+
+  const form = document.getElementById("form");
+  form.innerHTML = "";
+
+  if (!matches) return;
+
+  // Remove duplicadas
+  const variaveis = [...new Set(matches)];
+
+  variaveis.forEach(v => {
+    const nomeOriginal = v.replace(/{{|}}/g, "").trim();
+    
+    // ID seguro (substitui espaços e caracteres especiais)
+    const idCampo = nomeOriginal.replace(/[^a-zA-Z0-9]/g, "_");
+
+    form.innerHTML += `
+      <div class="form-field">
+        <label>${nomeOriginal}:</label>
+        <input type="text" id="${idCampo}">
+      </div>
+    `;
+  });
+}
+
+function gerarTexto() {
+  let texto = document.getElementById("template").value;
+
+  const matches = texto.match(/{{(.*?)}}/g);
+  if (!matches) return;
+
+  const variaveis = [...new Set(matches)];
+
+  variaveis.forEach(v => {
+    const nomeOriginal = v.replace(/{{|}}/g, "").trim();
+    const idCampo = nomeOriginal.replace(/[^a-zA-Z0-9]/g, "_");
+
+    const valor = document.getElementById(idCampo)?.value || "";
+
+    // Substitui todas as ocorrências
+    texto = texto.replaceAll(v, valor);
+  });
+
+  document.getElementById("resultado").value = texto;
+}
+</script>
+
+</body>
+</html>
